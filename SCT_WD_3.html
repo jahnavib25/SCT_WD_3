@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe — Modern Premium Edition</title>
+  <meta name="description" content="A feature-rich, high-performance, and visually stunning vanilla JS Tic-Tac-Toe application. Play against a friend or challenge an unbeatable Minimax AI.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Orbs for Ambient Glow -->
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Application Shell -->
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header>
+      <a href="#" class="brand" aria-label="Tic Tac Toe Home">
+        <img src="assets/logo.svg" alt="Game Logo" class="brand-logo">
+        <h1>Tic-Tac-Toe</h1>
+      </a>
+      
+      <div class="header-controls">
+        <button id="sound-toggle" class="btn-icon" aria-label="Mute game sounds">
+          <!-- JS will populate SVG depending on state -->
+        </button>
+        <button id="theme-toggle" class="btn-icon" aria-label="Toggle dark/light theme">
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Panel -->
+    <main class="main-content">
+      
+      <!-- SCREEN 1: SETUP SCREEN -->
+      <section id="screen-setup" class="screen">
+        <div class="home-logo-container">
+          <img src="assets/logo.svg" alt="Glow logo" class="home-logo">
+        </div>
+        
+        <h2 class="home-title">Championship<br><span>Tic-Tac-Toe</span></h2>
+        
+        <!-- Game Mode Selection -->
+        <div class="setup-group">
+          <span class="setup-group-label">Select Game Mode</span>
+          <div class="mode-selectors" role="radiogroup" aria-label="Game Mode Options">
+            <button class="selector-card active" data-mode="pvp" role="radio" aria-checked="true" aria-label="Player vs Player Mode">
+              <span class="selector-icon" aria-hidden="true">👥</span>
+              <span class="selector-title">Player vs Player</span>
+              <span class="selector-desc">Pass and play locally</span>
+            </button>
+            <button class="selector-card" data-mode="pvc" role="radio" aria-checked="false" aria-label="Player vs Computer Mode">
+              <span class="selector-icon" aria-hidden="true">🤖</span>
+              <span class="selector-title">Player vs Computer</span>
+              <span class="selector-desc">Challenge the engine</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Difficulty Selection (Collapsible) -->
+        <div id="difficulty-container" class="difficulty-container">
+          <div class="setup-group">
+            <span class="setup-group-label">AI Difficulty Level</span>
+            <div class="difficulty-options" role="radiogroup" aria-label="AI Difficulty Selector">
+              <button class="diff-btn" data-diff="easy" role="radio" aria-checked="false">Easy</button>
+              <button class="diff-btn active" data-diff="medium" role="radio" aria-checked="true">Medium</button>
+              <button class="diff-btn" data-diff="hard" role="radio" aria-checked="false">Hard (AI)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <button id="btn-start-game" class="btn-primary">
+          Start Game
+        </button>
+      </section>
+
+      <!-- SCREEN 2: GAMEPLAY BOARD SCREEN -->
+      <section id="screen-game" class="game-layout screen-game hidden">
+        
+        <!-- Main Board Card -->
+        <div class="game-main-card">
+          <!-- Active Turn / Status Indicator -->
+          <div class="status-indicator" aria-live="polite">
+            <span id="status-badge" class="status-badge x">X</span>
+            <span id="status-text" class="status-text">Your Turn</span>
+            <span id="opponent-label" style="margin-left: auto; opacity: 0.6; font-size: 0.8rem;"></span>
+          </div>
+
+          <!-- 3x3 Grid Board -->
+          <div class="board-grid" role="grid" aria-label="Tic Tac Toe Board">
+            <!-- Row 1 -->
+            <button class="cell hover-x" role="gridcell" aria-label="Top-Left cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Top-Middle cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Top-Right cell" tabindex="0"></button>
+            <!-- Row 2 -->
+            <button class="cell hover-x" role="gridcell" aria-label="Middle-Left cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Center cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Middle-Right cell" tabindex="0"></button>
+            <!-- Row 3 -->
+            <button class="cell hover-x" role="gridcell" aria-label="Bottom-Left cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Bottom-Middle cell" tabindex="0"></button>
+            <button class="cell hover-x" role="gridcell" aria-label="Bottom-Right cell" tabindex="0"></button>
+          </div>
+
+          <!-- Board Actions Buttons -->
+          <div class="game-controls">
+            <button id="btn-undo" class="btn-secondary" disabled aria-label="Undo last move">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+              </svg>
+              Undo
+            </button>
+            <button id="btn-reset" class="btn-secondary" aria-label="Restart current match">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+              </svg>
+              Restart
+            </button>
+          </div>
+        </div>
+
+        <!-- Sidebar Display Cards -->
+        <div class="game-sidebar">
+          
+          <!-- Scoreboard Panel -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">Scoreboard</h3>
+            <div class="scores-grid">
+              <div class="score-box x">
+                <div class="score-box-title">PLAYER (X)</div>
+                <div id="score-x-val" class="score-box-value">0</div>
+              </div>
+              <div class="score-box o">
+                <div id="score-o-title" class="score-box-title">PLAYER (O)</div>
+                <div id="score-o-val" class="score-box-value">0</div>
+              </div>
+              <div class="score-box draw" style="grid-column: span 2;">
+                <div class="score-box-title">DRAWS</div>
+                <div id="score-draw-val" class="score-box-value">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Moves History -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">Match History</h3>
+            <div id="history-list" class="history-list" aria-live="polite">
+              <div class="history-empty" id="history-empty">No moves made yet. Take a turn!</div>
+            </div>
+          </div>
+
+          <!-- Comprehensive Stats Panel -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-title">
+              Overall Statistics
+              <button id="btn-reset-stats" class="btn-icon" style="width:32px;height:32px;border-radius:10px;font-size:0.9rem" aria-label="Reset Statistics">
+                🗑️
+              </button>
+            </h3>
+            <div class="stats-list">
+              <div class="stats-row">
+                <span class="stats-label">Total Games Played</span>
+                <span id="stat-total-games" class="stats-val">0</span>
+              </div>
+              <div class="stats-row">
+                <span class="stats-label">Player X Wins</span>
+                <span id="stat-x-wins" class="stats-val">0</span>
+              </div>
+              <div class="stats-row">
+                <span class="stats-label">Player O Wins</span>
+                <span id="stat-o-wins" class="stats-val">0</span>
+              </div>
+              <div class="stats-row">
+                <span class="stats-label">Computer Wins</span>
+                <span id="stat-comp-wins" class="stats-val">0</span>
+              </div>
+              <div class="stats-row">
+                <span class="stats-label">Draws</span>
+                <span id="stat-draws" class="stats-val">0</span>
+              </div>
+              <div class="stats-row" style="border-bottom:none;">
+                <span class="stats-label">X Win Rate</span>
+                <span id="stat-win-percent" class="stats-val" style="color:var(--color-x)">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Return to Setup button -->
+          <button id="btn-new-match" class="btn-primary" aria-label="Quit game and configure new match">
+            New Match Configuration
+          </button>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p class="footer-text">
+        © 2026 Tic-Tac-Toe. Crafted with Vanilla HTML5, CSS3, and JavaScript.
+      </p>
+    </footer>
+
+    <!-- Game Over Victory / Draw Modal -->
+    <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <div id="modal-icon" class="modal-icon">🏆</div>
+        <h2 id="modal-title" class="modal-title">Player X Wins!</h2>
+        <p id="modal-subtitle" class="modal-subtitle">Congratulations Player X, a stellar performance!</p>
+        
+        <div class="modal-buttons">
+          <button id="modal-action-btn" class="btn-primary">Play Again</button>
+          <button id="modal-home-btn" class="btn-secondary">Setup Screen</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Entry Point -->
+  <script src="script.js"></script>
+</body>
+</html>
