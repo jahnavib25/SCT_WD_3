@@ -65,10 +65,6 @@ git clone https://github.com/jahnavib25/SCT_WD_03.git
 
 3. Launch **SCT_WD_3.html** in your preferred web browser.
 
-## 📸 Preview
-
-Add a screenshot or GIF of the application here.
-
 ## 🎯 Learning Outcomes
 
 - DOM Manipulation
